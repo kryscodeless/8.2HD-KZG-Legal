@@ -87,7 +87,113 @@ tests/
 - **Authentication:** Passport
 - **Database:** MongoDB (Mongoose)
 
-## Getting Started
+## Docker (HD Task)
+
+This section is the primary run guide for marking the containerised submission.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+- A copy of this repository
+
+### 1. Clone and configure
+
+```bash
+git clone https://github.com/kryscodeless/KZF-Legal.git
+cd KZF-Legal
+cp .env.example .env
+```
+
+Edit `.env` before starting:
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `JWT_SECRET` | Yes | Must be at least 32 characters |
+| `OPENAI_API_KEY` | Yes (chat + upload ingestion) | Not stored in this public repo |
+| `ANTHROPIC_API_KEY` | Yes (chat responses) | Not stored in this public repo |
+
+**Sensitive values:** Real API keys are intentionally excluded from GitHub. Use the working `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` values supplied in my **OnTrack submission** for this HD task.
+
+Docker Compose automatically sets these database URLs for the containers:
+
+- `MONGODB_URI=mongodb://mongo:27017/kfz-legal`
+- `RAG_MONGODB_URI=mongodb://mongo:27017/kfz-legal-rag`
+
+You do not need a local MongoDB installation when using Docker.
+
+### 2. Build and start
+
+```bash
+docker compose up --build
+```
+
+Wait until the app logs show the server running on port 3000.
+
+### 3. Access the application
+
+Open in a browser:
+
+```text
+http://localhost:3000
+```
+
+### 4. Verify the student endpoint
+
+```bash
+curl http://localhost:3000/api/student
+```
+
+Expected response:
+
+```json
+{
+  "name": "Phuc Anh Thu Nguyen",
+  "studentId": "223212228"
+}
+```
+
+### 5. Verify database-backed features
+
+With the containers running and valid API keys in `.env`:
+
+1. **Register** a new account from the login/register screen, or use seeded test users (see below).
+2. **Log in** with that account.
+3. **Upload** a PDF, DOC, or DOCX file from the upload page (requires valid `OPENAI_API_KEY` for ingestion).
+4. **Chat** by asking a question in the chat interface (requires valid `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`).
+
+Optional seed data for quick testing:
+
+```bash
+docker compose exec app npm run seed -- --force
+```
+
+Seeded accounts from `server/utils/seed.js`:
+
+| Email | Password | Role |
+|-------|----------|------|
+| `alice@example.com` | `UserPassword123!` | user |
+| `bob@example.com` | `UserPassword123!` | user |
+| `admin@legalplatform.dev` | `AdminPassword123!` | admin |
+
+### 6. Stop the application
+
+```bash
+docker compose down
+```
+
+To remove persisted database and upload data as well:
+
+```bash
+docker compose down -v
+```
+
+### Troubleshooting
+
+- **App exits on startup:** check that `JWT_SECRET` in `.env` is at least 32 characters.
+- **Chat or upload fails:** confirm the API keys from OnTrack are present in `.env`, then restart with `docker compose up --build`.
+- **Port already in use:** stop any local process on port 3000 or change the host mapping in `docker-compose.yml` (e.g. `"3001:3000"`).
+
+## Getting Started (Local Development)
 
 ### Prerequisites
 
@@ -100,7 +206,7 @@ tests/
 1. Clone the repository:
    ```bash
    git clone https://github.com/kryscodeless/KZF-Legal.git
-   cd KFZ-Legal
+   cd KZF-Legal
    ```
 
 2. Install dependencies:

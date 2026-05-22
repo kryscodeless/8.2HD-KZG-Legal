@@ -1,5 +1,6 @@
 const express = require("express");
 const healthRoutes = require("./healthRoutes");
+const studentRoutes = require("./studentRoutes");
 const authRoutes = require("./authRoutes");
 const chatRoutes = require("./chatRoutes");
 const documentRoutes = require("./documentRoutes");
@@ -13,6 +14,7 @@ const router = express.Router();
 // Public routes
 router.use("/auth", authRoutes);
 router.use("/health", healthRoutes);
+router.use("/student", studentRoutes);
 
 // Protected routes (require authentication)
 router.use("/chat", requireAuth, chatRoutes);
